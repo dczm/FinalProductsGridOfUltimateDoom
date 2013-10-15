@@ -1,0 +1,35 @@
+<?xml version="1.0"?>
+<layout>
+	<adminhtml_catalog_product_index>
+		<reference name="head">
+			<action method="addJs"><script>extjs/ext-tree.js</script></action>                
+            <action method="addJs"><script>extjs/ext-tree-checkbox.js</script></action>
+            <action method="addItem"><type>js_css</type><name>extjs/resources/css/ext-all.css</name></action>
+            <action method="addItem"><type>js_css</type><name>extjs/resources/css/ytheme-magento.css</name></action>
+		</reference>
+		<reference name="left">
+			<block name="finalproductsgridofultimatedoom_shrub" as="shrub" type="finalproductsgridofultimatedoom/shrub" template="finalproductsgridofultimatedoom/shrub.phtml">
+			<block type="adminhtml/store_switcher" name="store_switcher" as="store_switcher">
+                    <action method="setUseConfirm"><params>0</params></action>
+                </block>
+                
+			</block>
+			<action method="unsetChild" ifconfig="catalog/finalproductsgridofultimatedoom/show_tree" ><name>finalproductsgridofultimatedoom_shrub</name></action>
+		</reference>
+		<reference name="products_list">
+			<action method="unsetChild" ifconfig="catalog/finalproductsgridofultimatedoom/show_tree" ><name>store_switcher</name></action>
+		</reference>
+	</adminhtml_catalog_product_index>
+	<adminhtml_catalog_product_action_attribute_edit>
+		<reference name="head">
+			<action method="addJs"><script>extjs/ext-tree.js</script></action>                
+            <action method="addJs"><script>extjs/ext-tree-checkbox.js</script></action>
+            <action method="addItem"><type>js_css</type><name>extjs/resources/css/ext-all.css</name></action>
+            <action method="addItem"><type>js_css</type><name>extjs/resources/css/ytheme-magento.css</name></action>
+		</reference>
+        <reference name="attributes_tabs">
+                <block type="finalproductsgridofultimatedoom/shrubs" name="tab_finalproductsgridofultimatedoom" template="finalproductsgridofultimatedoom/shrubs.phtml" />
+                <action method="addTab"><name>tab_finalproductsgridofultimatedoom</name><block>tab_finalproductsgridofultimatedoom</block></action>
+        </reference>
+    </adminhtml_catalog_product_action_attribute_edit>
+</layout>

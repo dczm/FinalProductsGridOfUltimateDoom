@@ -1,0 +1,33 @@
+<?xml version="1.0"?>
+<config>
+    <sections>
+    	<catalog>
+    		 <groups>
+                <finalproductsgridofultimatedoom translate="label">
+                    <label>Final Products Grid Of Ultimate Doom</label>
+                    <frontend_type>text</frontend_type>
+                    <sort_order>1</sort_order>
+                    <show_in_default>1</show_in_default>
+                    <fields>
+				        <show_tree>
+				            <label>Show category tree</label>
+				            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <show_in_default>1</show_in_default>     
+                            <sort_order>1</sort_order>   
+				        </show_tree>
+				        <show_by>
+				            <label>Show products by</label>
+				            <frontend_type>select</frontend_type>
+                            <source_model>finalproductsgridofultimatedoom/showby</source_model>
+                            <show_in_default>1</show_in_default>
+                            <comment>If Display Settings selected remember to select right scope in Manage Products grid</comment>
+                            <sort_order>3</sort_order>  
+				        </show_by>
+				    </fields>             
+                </finalproductsgridofultimatedoom>
+            </groups>
+    	</catalog>
+    
+    </sections>
+</config>

@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<config>
+    <modules>
+        <Dczm_FinalProductsGridOfUltimateDoom>
+            <active>true</active>
+            <codePool>community</codePool>
+        </Dczm_FinalProductsGridOfUltimateDoom>
+    </modules>
+</config>

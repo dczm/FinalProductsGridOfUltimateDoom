@@ -1,0 +1,277 @@
+<?php if( Mage::getStoreConfig('catalog/finalproductsgridofultimatedoom/show_tree')): ?>
+<div class="categories-side-col">
+    <div class="content-header">
+        <h3 class="icon-head head-categories"><?php echo Mage::helper('catalog')->__('Categories') ?></h3>
+    </div>
+    <?php echo $this->getStoreSwitcherHtml();?>
+    <?php if ($this->getRoot()): ?>
+    <div class="tree-actions">
+            <a href="#" onclick="tree.withoutCategory(); return false;"><?php echo Mage::helper('catalog')->__('Without category'); ?></a> <span class="separator">|</span> <a href="#" onclick="tree.clearSelection(); return false;"><?php echo Mage::helper('catalog')->__('Reset'); ?></a>
+    </div>
+    <div class="tree-holder">
+        <div id="tree-div" style="width:100%; overflow:auto;"></div>
+    </div>
+</div>
+<script type="text/javascript">
+//<![CDATA[
+var tree;
+
+Ext.lib.Event.getTarget = function(e) {
+    var ee = e.browserEvent || e;
+    return ee.target ? Event.element(ee) : null;
+};
+
+Ext.tree.TreePanel.Enhanced = function(el, config)
+{
+    Ext.tree.TreePanel.Enhanced.superclass.constructor.call(this, el, config);
+};
+
+Ext.extend(Ext.tree.TreePanel.Enhanced, Ext.tree.TreePanel, {
+
+    loadTree : function(config, firstLoad)
+    {
+        var parameters = config['parameters'];
+        var data = config['data'];
+
+        this.storeId = parameters['store_id'];
+
+        if ( this.storeId != 0 && $('add_root_category_button')) {
+            $('add_root_category_button').hide();
+        }
+
+        if ((typeof parameters['root_visible']) != 'undefined') {
+            this.rootVisible = parameters['root_visible']*1;
+        }
+
+        var root = new Ext.tree.TreeNode(parameters);
+
+        this.nodeHash = {};
+        this.setRootNode(root);
+
+        if (firstLoad) {
+            this.addListener('click', this.categoryClick);
+        }
+
+        this.loader.buildCategoryTree(root, data);
+        this.el.dom.innerHTML = '';
+        
+        this.render();
+
+        var selectedNode = this.getNodeById(parameters['category_id']);
+        if (selectedNode) {
+            this.currentNodeId = parameters['category_id'];
+        }
+        this.selectCurrentNode();
+    },
+
+    selectCurrentNode : function()
+    {
+        if (this.currentNodeId) {
+            var selectedNode = this.getNodeById(this.currentNodeId);
+            if ((typeof selectedNode.attributes.path)!='undefined') {
+                var path = selectedNode.attributes.path;
+                if (!this.storeId) {
+                    path = '0/'+path;
+                }
+                this.selectPath(path);
+              
+            } else {
+                this.getSelectionModel().select(selectedNode);
+            }
+        }
+    },
+    
+    clearSelection : function () {
+    	this.getSelectionModel().clearSelections();
+    	$('productGrid_product_filter_finalproductsgridofultimatedoom_categories').setValue("");
+    	productGridJsObject.doFilter();
+    },
+    
+	withoutCategory : function() {
+		this.getSelectionModel().clearSelections();
+    	$('productGrid_product_filter_finalproductsgridofultimatedoom_categories').setValue(-1);
+    	productGridJsObject.doFilter();
+		
+	},
+	
+    categoryClick : function(node, e)
+    {
+    	$('productGrid_product_filter_finalproductsgridofultimatedoom_categories').setValue(node.id);
+        productGridJsObject.doFilter();
+    }
+});
+
+function reRenderTree(event, switcher)
+{
+    if (tree && event) {
+        var obj = event.target;
+        var newStoreId = obj.value * 1;
+        var storeParam = newStoreId ? 'store/'+newStoreId + '/' : '';
+
+        if (obj.switchParams) {
+            storeParam += obj.switchParams;
+        }
+
+        storeParam = storeParam + 'id/' + tree.currentNodeId + '/';
+        var url = tree.switchTreeUrl + storeParam;
+
+        new Ajax.Request(url + (url.match(new RegExp('\\?')) ? '&isAjax=true' : '?isAjax=true' ), {
+            parameters : {store: newStoreId, form_key: FORM_KEY},
+            method     : 'post',
+            onComplete : function(transport) {
+                var response = eval('(' + transport.responseText + ')');
+                if (!response['parameters']) {
+                    return false;
+                }
+
+                _renderNewTree(response, storeParam);
+            }
+        });
+    }
+    // render default tree
+    else {
+        _renderNewTree();
+    }
+}
+
+function _renderNewTree(config, storeParam)
+{
+    if (!config) {
+        var config = defaultLoadTreeParams;
+    }
+    if (tree) {
+        tree.purgeListeners();
+        tree.el.dom.innerHTML = '';
+    }
+    tree = new Ext.tree.TreePanel.Enhanced('tree-div', newTreeParams);
+    tree.loadTree(config, true);
+    var selectedNode = tree.getNodeById(config.parameters.category_id);
+    if (selectedNode) {
+        tree.currentNodeId = config.parameters.category_id;
+    }
+    tree.selectCurrentNode();
+    var url = tree.editUrl;
+    if (storeParam) {
+        url = url + storeParam;
+    }
+}
+
+Ext.onReady(function()
+{
+    categoryLoader = new Ext.tree.TreeLoader({
+       dataUrl: '<?php echo $this->getLoadTreeUrl() ?>'
+    });
+
+    categoryLoader.createNode = function(config) {
+        var node;
+        var _node = Object.clone(config);
+        if (config.children && !config.children.length) {
+            delete(config.children);
+            node = new Ext.tree.AsyncTreeNode(config);
+        } else {
+            node = new Ext.tree.TreeNode(config);
+        }
+
+        return node;
+    };
+
+    categoryLoader.buildCategoryTree = function(parent, config)
+    {
+        if (!config) return null;
+
+        if (parent && config && config.length){
+            for (var i = 0; i < config.length; i++) {
+                var node;
+                var _node = Object.clone(config[i]);
+                if (_node.children && !_node.children.length) {
+                    delete(_node.children);
+                    node = new Ext.tree.AsyncTreeNode(_node);
+                } else {
+                    node = new Ext.tree.TreeNode(config[i]);
+                }
+                parent.appendChild(node);
+                node.loader = node.getOwnerTree().loader;
+                if (_node.children) {
+                    this.buildCategoryTree(node, _node.children);
+                }
+            }
+        }
+    };
+
+    categoryLoader.buildHash = function(node)
+    {
+        var hash = {};
+
+        hash = this.toArray(node.attributes);
+
+        if (node.childNodes.length>0 || (node.loaded==false && node.loading==false)) {
+            hash['children'] = new Array;
+
+            for (var i = 0, len = node.childNodes.length; i < len; i++) {
+                if (!hash['children']) {
+                    hash['children'] = new Array;
+                }
+                hash['children'].push(this.buildHash(node.childNodes[i]));
+            }
+        }
+
+        return hash;
+    };
+
+    categoryLoader.toArray = function(attributes) {
+        var data = {form_key: FORM_KEY};
+        for (var key in attributes) {
+            var value = attributes[key];
+            data[key] = value;
+        }
+
+        return data;
+    };
+
+    categoryLoader.on("beforeload", function(treeLoader, node) {
+        treeLoader.baseParams.id = node.attributes.id;
+        treeLoader.baseParams.store = node.attributes.store;
+        treeLoader.baseParams.form_key = FORM_KEY;
+    });
+
+    categoryLoader.on("load", function(treeLoader, node, config) {
+        varienWindowOnload();
+    });
+
+    if ((typeof varienStoreSwitcher)!='undefined') {
+        varienStoreSwitcher.storeSelectorClickCallback = reRenderTree;
+    }
+
+    newTreeParams = {
+        animate         : false,
+        loader          : categoryLoader,
+        enableDD        : false,
+        containerScroll : true,
+        rootVisible     : '<?php echo $this->getRoot()->getIsVisible() ?>',
+        useAjax         : <?php echo $this->getUseAjax() ?>,
+        switchTreeUrl   : '<?php echo $this->getSwitchTreeUrl() ?>',
+        editUrl         : '<?php echo $this->getEditUrl() ?>',
+        currentNodeId   : <?php echo (int) $this->getCategoryId() ?>
+    };
+
+    defaultLoadTreeParams = {
+        parameters : {
+            text        : '<?php echo htmlentities($this->getRoot()->getName()) ?>',
+            draggable   : false,
+            allowDrop   : false,
+            id          : <?php echo (int) $this->getRoot()->getId() ?>,
+            expanded    : <?php echo (int) $this->getIsWasExpanded() ?>,
+            store_id    : <?php echo (int) $this->getStore()->getId() ?>,
+            category_id : <?php echo (int) $this->getCategoryId() ?>
+        },
+        data : <?php echo $this->getTreeJson() ?>
+    };
+
+    reRenderTree();
+});
+
+
+//]]>
+</script>
+<?php endif; ?>
+<?php endif; ?>

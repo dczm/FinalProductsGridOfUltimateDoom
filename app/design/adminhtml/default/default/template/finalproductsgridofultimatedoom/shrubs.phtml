@@ -1,0 +1,43 @@
+<div class="entry-edit">
+    <div class="entry-edit-head">
+        <h4 class="icon-head head-edit-form fieldset-legend"><?php echo Mage::helper('catalog')->__('Product Categories') ?></h4>
+    </div>
+    <fieldset id="finalproductsgridofultimatedoom_fieldset">
+    	<table cellspacing="0" class="form-list" id="table_finalproductsgridofultimatedoom">
+    		
+    		<tr><td colspan="2"> 
+    			<input type="checkbox" id="finalproductsgridofultimatedoom_checkbox" onclick="toggleCategoryWithCheckbox(this)" />
+                    <label for="finalproductsgridofultimatedoom_checkbox" class="normal"><?php echo Mage::helper('catalog')->__('Change') ?></label>
+                    </td>
+            </tr>
+             <tr>
+            	<td colspan="2">
+            		<input type="hidden" name="attributes[finalproductsgrid_cats][cats]" id="finalproductsgridofultimatedoom_ids" disabled="disabled"/>
+            		<?php echo $this -> getShrubsHtml(); ?>
+            	</td>
+            </tr>
+            <tr>
+                <td class="label"><label for="finalproductsgridofultimatedoom_remove_old"><?php echo Mage::helper('finalproductsgridofultimatedoom')->__('Remove products from old categories') ?></label></td>
+                <td class="value">
+                	<select id="finalproductsgridofultimatedoom_remove_old" name="attributes[finalproductsgrid_cats][remove]" class="select" disabled="disabled">
+                        <option value="1" selected="selected"><?php echo Mage::helper('catalog')->__('Yes') ?></option>
+                        <option value="0"><?php echo Mage::helper('catalog')->__('No') ?></option>
+                    </select>
+                </td>
+            </tr>
+           
+          </table>
+       	
+    </fieldset>
+    <script type="text/javascript">
+    //<![CDATA[
+    	var finalproductsgridofultimatedoom_fieldset = new varienForm('finalproductsgridofultimatedoom_fieldset', '');
+		finalproductsgridofultimatedoom_fieldset.updateElement = $('finalproductsgridofultimatedoom_ids');
+
+		function toggleCategoryWithCheckbox(checkbox) {		
+			$('finalproductsgridofultimatedoom_ids').disabled = !checkbox.checked;
+			$('finalproductsgridofultimatedoom_remove_old').disabled = !checkbox.checked;
+		}
+		//]]>
+    </script>
+</div>
